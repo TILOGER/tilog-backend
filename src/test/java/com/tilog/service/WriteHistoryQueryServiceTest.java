@@ -52,6 +52,34 @@ class WriteHistoryQueryServiceTest {
         assertDailyCount(response.items().get(2), "2026-05-03", 2);
     }
 
+    @Test
+    @DisplayName("시작일이 종료일보다 늦으면 예외가 발생한다")
+    void getDailyCounts_throwExceptionWhenStartDateAfterEndDate() {
+        Long memberId = 1L;
+        LocalDate startDate = LocalDate.of(2026, 5, 10);
+        LocalDate endDate = LocalDate.of(2026, 5, 1);
+
+        assertThatThrownBy(() ->
+                writeHistoryQueryService.getDailyCounts(memberId, startDate, endDate)
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("시작일은 종료일보다 늦을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("조회 기간이 1년을 초과하면 예외가 발생한다")
+    void getDailyCounts_throwExceptionWhenDateRangeOverOneYear() {
+        Long memberId = 1L;
+        LocalDate startDate = LocalDate.of(2026, 1, 1);
+        LocalDate endDate = LocalDate.of(2027, 1, 3);
+
+        assertThatThrownBy(() ->
+                writeHistoryQueryService.getDailyCounts(memberId, startDate, endDate)
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("조회 기간은 최대 1년까지 가능합니다.");
+    }
+
     // 검증용 헬퍼 메서드
     private void assertDailyCount(WriteHistoryDailyCountResponse item, String expectedDate, int expectedCount) {
         assertThat(item.date()).isEqualTo(LocalDate.parse(expectedDate));
