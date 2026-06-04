@@ -5,12 +5,15 @@ import com.tilog.domain.admin.dto.AdminMemberDetailResponse;
 import com.tilog.domain.admin.dto.AdminMemberListResponse;
 import com.tilog.domain.admin.dto.MemberSanctionRequestDto;
 import com.tilog.domain.admin.service.AdminService;
+import com.tilog.domain.report.dto.ReportResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -46,5 +49,11 @@ public class AdminController {
     public ResponseEntity<Void> doSanction(@PathVariable Long reportId, @RequestBody MemberSanctionRequestDto memberSanctionRequestDto){ // 제재
         adminService.doSanction(reportId, memberSanctionRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/reports/recent")
+    public ResponseEntity<List<ReportResponseDto>> getRecentReports() { // 최근 신고 목록 조회
+        List<ReportResponseDto> recentReports = adminService.getRecentReports();
+        return ResponseEntity.ok(recentReports);
     }
 }
