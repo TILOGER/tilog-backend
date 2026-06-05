@@ -97,6 +97,27 @@ public class NotificationService {
         notificationRepository.markAllAsRead(memberId);
     }
 
+    /** 알림 단건 삭제 */
+    @Transactional
+    public void deleteNotification(Long notificationId) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        if (!notification.getReceiver().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOTIFICATION_UNAUTHORIZED);
+        }
+
+        notificationRepository.delete(notification);
+    }
+
+    /** 알림 전체 삭제 */
+    @Transactional
+    public void deleteAllNotifications() {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        notificationRepository.deleteAllByReceiverId(memberId);
+    }
+
     public SseEmitter subscribe(Long memberId) {    // client의 SSE 구독 처리
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
         emitterRepository.save(memberId, emitter);

@@ -50,10 +50,24 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success("전체 읽음 처리되었습니다."));
     }
 
+    /** 알림 단건 삭제 */
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<ApiResponse<Void>> deleteNotification(@PathVariable Long notificationId) {
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok(ApiResponse.<Void>success("알림이 삭제되었습니다."));
+    }
+
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(){  // 클라이언트 실시간 알림 구독(SSE 연결)
         Long memberId = SecurityUtil.getCurrentMemberId();
         SseEmitter sseEmitter = notificationService.subscribe(memberId);
         return ResponseEntity.ok(sseEmitter);
+    }
+
+    /** 알림 전체 삭제 */
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteAllNotifications() {
+        notificationService.deleteAllNotifications();
+        return ResponseEntity.ok(ApiResponse.<Void>success("전체 알림이 삭제되었습니다."));
     }
 }
