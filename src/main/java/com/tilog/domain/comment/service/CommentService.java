@@ -72,7 +72,7 @@ public class CommentService {
                 "TIL_POST"
         );
 
-        return CommentResponse.from(saved, memberId);
+        return CommentResponse.from(saved);
     }
 
     /** 댓글 수정 */
@@ -88,7 +88,7 @@ public class CommentService {
         }
 
         comment.update(request.getContent());
-        return CommentResponse.from(comment, memberId);
+        return CommentResponse.from(comment);
     }
 
     /** 댓글 삭제 (소프트 딜리트) */
@@ -108,22 +108,21 @@ public class CommentService {
 
     /** 게시글의 댓글 목록 조회 */
     public List<CommentResponse> getComments(Long postId) {
-        Long memberId = SecurityUtil.getCurrentMemberId();
         return commentRepository.findTopLevelCommentsByPostId(postId)
                 .stream()
-                .map(comment -> CommentResponse.from(comment, memberId))
+                .map(CommentResponse::from)
                 .collect(Collectors.toList());
     }
 
     /** 대댓글 목록 조회 */
     public List<CommentResponse> getReplies(Long commentId) {
-        Long memberId = SecurityUtil.getCurrentMemberId();
         commentRepository.findActiveById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         return commentRepository.findRepliesByParentId(commentId)
                 .stream()
-                .map(comment -> CommentResponse.from(comment, memberId))
+                .map(CommentResponse::from)
                 .collect(Collectors.toList());
     }
 }
+
