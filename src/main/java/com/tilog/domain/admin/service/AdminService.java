@@ -13,6 +13,7 @@ import com.tilog.domain.member.repository.MemberSanctionRepository;
 import com.tilog.domain.post.entity.Post;
 import com.tilog.domain.member.repository.MemberRepository;
 import com.tilog.domain.post.repository.TilPostRepository;
+import com.tilog.domain.report.dto.ReportResponseDto;
 import com.tilog.domain.report.entity.Report;
 import com.tilog.domain.report.entity.TargetType;
 import com.tilog.domain.report.repository.ReportRepository;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -101,5 +104,19 @@ public class AdminService {
 
         MemberSanction memberSanction = new MemberSanction(reportedMember, null, memberSanctionRequestDto.getSanctionType(), memberSanctionRequestDto.getReasonType(), memberSanctionRequestDto.getContent());
         memberSanctionRepository.save(memberSanction);
+    }
+
+    public List<ReportResponseDto> getRecentReports() { // 최근 신고목록 4건 조회
+        List<Report> recentReports = reportRepository.findTop4ByOrderByCreatedAtDesc();
+
+        List<ReportResponseDto> responseList = recentReports.stream()
+                .map(report -> new ReportResponseDto(
+                        report.getReportId(),
+                        report.getReasonType(),
+                        report.getReasonDetail(),
+                        report.getStatus()
+                )).toList();
+
+        return responseList;
     }
 }
