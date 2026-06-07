@@ -44,5 +44,20 @@ public class AuthService {
                 refreshToken,
                 jwtTokenProvider.getAccessTokenValiditySeconds()
         );
+
+
+    }
+    // 토큰 재발급
+    @Transactional(readOnly = true)
+    public TokenResponse reissueToken(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new AuthException("존재하지 않는 회원입니다."));
+        String createdAt = member.getCreatedAt() != null
+                ? member.getCreatedAt().toLocalDate().toString() : "";
+        String accessToken = jwtTokenProvider.createAccessToken(
+                member.getId(), member.getRole(), member.getNickname(), member.getEmail(), createdAt);
+        String refreshToken = jwtTokenProvider.createRefreshToken(
+                member.getId(), member.getRole(), member.getNickname(), member.getEmail(), createdAt);
+        return TokenResponse.of(accessToken, refreshToken, jwtTokenProvider.getAccessTokenValiditySeconds());
     }
 }

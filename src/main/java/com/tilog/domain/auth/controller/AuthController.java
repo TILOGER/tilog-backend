@@ -7,6 +7,7 @@ import com.tilog.domain.member.dto.MemberResponse;
 import com.tilog.global.response.ApiResponse;
 import com.tilog.domain.auth.service.AuthService;
 import com.tilog.domain.member.service.MemberService;
+import com.tilog.global.security.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,5 +32,12 @@ public class AuthController {
     public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         TokenResponse response = authService.login(request);
         return ApiResponse.success(response, "로그인 성공");
+    }
+
+    // 재발급
+    @PostMapping("/reissue")
+    public ApiResponse<TokenResponse> reissue() {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        return ApiResponse.success(authService.reissueToken(memberId));
     }
 }
